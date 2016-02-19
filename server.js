@@ -46,6 +46,15 @@ function remoteServer(app) {
 
     res.writeHead(200, { 'Content-Type' : 'text/plain' });
     res.end();
+
+    var dat = 'data: ' + req.body.data + '\neventId:' + (++eventid) + '\n\n';
+    sessions.log[id].write(dat);
+    var fs = require('fs');
+    var path = require('path');
+    var file = path.join(__dirname, 'log', 'jsconsole.log');
+    fs.appendFile(file, dat, 
+    	function(err) { if(err) { console.log('Error writing to logfile: ' + file); }
+    });
   });
 
   app.get('/remote/:id/run', function (req, res) {
