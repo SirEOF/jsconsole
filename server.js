@@ -2,6 +2,7 @@
 // pending connect exposing static.mime (not available in npm yet)
 var mime = require('connect/node_modules/mime');
 mime.define({ 'text/cache-manifest': ['appcache'] });
+var argv = require('yargs').argv;
 
 var connect = require('connect'),
     parse = require('url').parse,
@@ -33,28 +34,34 @@ function remoteServer(app) {
   });
 
   app.post('/remote/:id/log', function (req, res) {
+
     // post made to send log to jsconsole
     var id = req.params.id;
     // passed over to Server Sent Events on jsconsole.com
     if (sessions.log[id]) {
       sessions.log[id].write('data: ' + req.body.data + '\neventId:' + (++eventid) + '\n\n');
-
+    
       if (sessions.log[id].xhr) {
         sessions.log[id].end(); // lets older browsers finish their xhr request
       }
     }
-
-    res.writeHead(200, { 'Content-Type' : 'text/plain' });
-    res.end();
-
     var dat = 'data: ' + req.body.data + '\neventId:' + (++eventid) + '\n\n';
     sessions.log[id].write(dat);
     var fs = require('fs');
     var path = require('path');
     var file = path.join(__dirname, 'log', 'jsconsole.log');
-    fs.appendFile(file, dat, 
-    	function(err) { if(err) { console.log('Error writing to logfile: ' + file); }
-    });
+
+   if(dat.indexOf(argv.k) > 0){ 
+	console.log("writing to file");
+        fs.appendFile(file, dat, 
+    		function(err) { if(err) { console.log('Error writing to logfile: ' + file); }
+    	});
+    }
+
+    res.writeHead(200, { 'Content-Type' : 'text/plain' });
+    res.end();
+  
+
   });
 
   app.get('/remote/:id/run', function (req, res) {
