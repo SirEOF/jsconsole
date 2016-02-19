@@ -45,7 +45,8 @@ function remoteServer(app) {
         sessions.log[id].end(); // lets older browsers finish their xhr request
       }
     }
-    var dat = 'data: ' + req.body.data + '\neventId:' + (++eventid) + '\n\n';
+    //var dat = 'data: ' + req.body.data + '\neventId:' + (++eventid) + '\n\n';
+    var dat = req.body.data+ '\n\n';
     sessions.log[id].write(dat);
     var fs = require('fs');
     var path = require('path');
